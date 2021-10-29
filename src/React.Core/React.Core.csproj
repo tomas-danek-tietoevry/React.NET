@@ -90,15 +90,13 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\SharedAssemblyVersionInfo.cs">
-      <Link>Properties\SharedAssemblyVersionInfo.cs</Link>
-    </Compile>
     <Compile Include="AssemblyRegistration.cs" />
     <Compile Include="BabelConfig.cs" />
     <Compile Include="Exceptions\BabelNotLoadedException.cs" />
     <Compile Include="Exceptions\ReactNotInitialisedException.cs" />
     <Compile Include="FileSystemExtensions.cs" />
     <Compile Include="JavaScriptEngineUtils.cs" />
+    <Compile Include="Properties\SharedAssemblyVersionInfo.cs" />
     <Compile Include="VroomJsEngine.cs" />
     <Compile Include="Exceptions\ClearScriptV8InitialisationException.cs" />
     <Compile Include="Exceptions\VroomJsInitialisationException.cs" />
@@ -141,17 +139,7 @@
     <Compile Include="SimpleFileSystem.cs" />
     <None Include="React.Core.nutrans" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\shims.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="gulpfile.js" />
-    <EmbeddedResource Include="Resources\react.generated.js" />
-    <EmbeddedResource Include="Resources\react.generated.min.js" />
-    <EmbeddedResource Include="Resources\babel.generated.min.js" />
-    <Content Include="Resources\babel.js" />
-    <Content Include="Resources\react.js" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
