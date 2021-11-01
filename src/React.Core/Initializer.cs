@@ -26,7 +26,6 @@ namespace React
 		/// </summary>
 		private readonly static ISet<string> _obsoleteAssemblies = new HashSet<string>
 		{
-			"React.JavaScriptEngine.VroomJs",
 			"React.JavaScriptEngine.ClearScriptV8",
 		};
 

@@ -294,7 +294,6 @@ namespace React
 				ex.ColumnNumber
 			), ex.EngineName, ex.EngineVersion)
 			{
-				ErrorCode = ex.ErrorCode,
 				Category = ex.Category,
 				LineNumber = ex.LineNumber,
 				ColumnNumber = ex.ColumnNumber,

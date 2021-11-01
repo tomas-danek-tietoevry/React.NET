@@ -212,7 +212,7 @@ namespace React
 			// this class. Let's just ignore this if it's disposed.
 			if (!_disposed)
 			{
-				_pool.ReturnEngineToPool(engine);	
+				// _pool.ReturnEngineToPool(engine);	
 			}
 		}
 
@@ -258,12 +258,6 @@ namespace React
 			{
 				JavaScriptEngineUtils.EnsureEngineFunctional<V8JsEngine, ClearScriptV8InitialisationException>(
 					ex => new ClearScriptV8InitialisationException(ex)
-				);
-			}
-			else if (JavaScriptEngineUtils.EnvironmentSupportsVroomJs())
-			{
-				JavaScriptEngineUtils.EnsureEngineFunctional<VroomJsEngine, VroomJsInitialisationException>(
-					ex => new VroomJsInitialisationException(ex.Message)
 				);
 			}
 			throw new ReactEngineNotFoundException();

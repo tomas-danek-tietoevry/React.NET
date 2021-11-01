@@ -36,8 +36,7 @@ namespace React.Exceptions
 		{
 			return
 				"No usable JavaScript engine was found. Please install a JavaScript engine such " +
-				"as React.JavaScriptEngine.ClearScriptV8 (on Windows) or " +
-				"React.JavaScriptEngine.VroomJs (on Linux and Mac OS X). Refer to the ReactJS.NET " +
+				"as React.JavaScriptEngine.ClearScriptV8 (on Windows). Refer to the ReactJS.NET " +
 				"documentation for more details.";
 		}
 	}
