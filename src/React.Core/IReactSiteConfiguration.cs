@@ -19,19 +19,6 @@ namespace React
 	public interface IReactSiteConfiguration
 	{
 		/// <summary>
-		/// Adds a script to the list of scripts that are executed. This should be called for all
-		/// React components and their dependencies. If the script does not have any JSX in it
-		/// (for example, it's built using Webpack or Gulp), use 
-		/// <see cref="AddScriptWithoutTransform"/> instead.
-		/// </summary>
-		/// <param name="filename">
-		/// Name of the file to execute. Should be a server relative path starting with ~ (eg. 
-		/// <c>~/Scripts/Awesome.js</c>)
-		/// </param>
-		/// <returns>This configuration, for chaining</returns>
-		IReactSiteConfiguration AddScript(string filename);
-
-		/// <summary>
 		/// Adds a script to the list of scripts that are executed. This is the same as
 		/// <see cref="AddScript"/> except it does not run JSX transformation on the script and thus is
 		/// more efficient.
@@ -42,12 +29,6 @@ namespace React
 		/// </param>
 		/// <returns>The configuration, for chaining</returns>
 		IReactSiteConfiguration AddScriptWithoutTransform(string filename);
-
-		/// <summary>
-		/// Gets a list of all the scripts that have been added to this configuration and require JSX
-		/// transformation to be run.
-		/// </summary>
-		IEnumerable<string> Scripts { get; }
 
 		/// <summary>
 		/// Gets a list of all the scripts that have been added to this configuration and do not 
@@ -111,40 +92,5 @@ namespace React
 		/// </summary>
 		/// <returns></returns>
 		IReactSiteConfiguration SetAllowMsieEngine(bool allowMsieEngine);
-
-		/// <summary>
-		/// Gets or sets whether the built-in version of React is loaded. If <c>false</c>, you must
-		/// provide your own version of React.
-		/// </summary>
-		bool LoadReact { get; set; }
-		/// <summary>
-		/// Sets whether the built-in version of React is loaded. If <c>false</c>, you must 
-		/// provide your own version of React.
-		/// </summary>
-		/// <returns>The configuration, for chaining</returns>
-		IReactSiteConfiguration SetLoadReact(bool loadReact);
-
-		/// <summary>
-		/// Gets or sets whether Babel is loading. Disabling the loading of Babel can improve startup
-		/// performance, but all your JSX files must be transformed beforehand (eg. through Babel,
-		/// Webpack or Browserify).
-		/// </summary>
-		bool LoadBabel { get; set; }
-		/// <summary>
-		/// Sets whether Babel is loading. Disabling the loading of Babel can improve startup
-		/// performance, but all your JSX files must be transformed beforehand (eg. through Babel,
-		/// Webpack or Browserify).
-		/// </summary>
-		IReactSiteConfiguration SetLoadBabel(bool loadBabel);
-
-		/// <summary>
-		/// Gets or sets the Babel configuration to use.
-		/// </summary>
-		BabelConfig BabelConfig { get; set; }
-		/// <summary>
-		/// Sets the Babel configuration to use.
-		/// </summary>
-		/// <returns>The configuration, for chaining</returns>
-		IReactSiteConfiguration SetBabelConfig(BabelConfig value);
 	}
 }

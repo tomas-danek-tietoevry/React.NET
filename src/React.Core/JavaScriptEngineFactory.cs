@@ -70,8 +70,8 @@ namespace React
 		/// </summary>
 		protected virtual IJsPool CreatePool()
 		{
-			var allFiles = _config.Scripts
-				.Concat(_config.ScriptsWithoutTransform)
+			var allFiles = _config
+                .ScriptsWithoutTransform
 				.Select(_fileSystem.MapPath);
 
 			var poolConfig = new JsPoolConfig
@@ -104,19 +104,12 @@ namespace React
 		{
 			var thisAssembly = typeof(ReactEnvironment).Assembly;
 			engine.ExecuteResource("React.Resources.shims.js", thisAssembly);
-			if (_config.LoadReact)
-			{
-				// TODO: Add option to choose whether to load dev vs prod version of React.
-				engine.ExecuteResource("React.Resources.react.generated.js", thisAssembly);
-			}
 
 			LoadUserScripts(engine);
-			if (!_config.LoadReact)
-			{
-				// We expect to user to have loaded their own version of React in the scripts that
-				// were loaded above, let's ensure that's the case. 
-				EnsureReactLoaded(engine);
-			}
+
+            // We expect to user to have loaded their own version of React in the scripts that
+			// were loaded above, let's ensure that's the case. 
+			EnsureReactLoaded(engine);
 		}
 
 		/// <summary>

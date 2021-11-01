@@ -12,11 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using JavaScriptEngineSwitcher.Core;
-using JavaScriptEngineSwitcher.Core.Helpers;
-using Newtonsoft.Json;
-using React.Exceptions;
 
 namespace React
 {
@@ -61,10 +57,6 @@ namespace React
 		/// </summary>
 		protected readonly IFileCacheHash _fileCacheHash;
 
-		/// <summary>
-		/// JSX Transformer instance for this environment
-		/// </summary>
-		protected readonly Lazy<IBabel> _babelTransformer;
 		/// <summary>
 		/// Version number of ReactJS.NET
 		/// </summary>
@@ -114,9 +106,6 @@ namespace React
 			_cache = cache;
 			_fileSystem = fileSystem;
 			_fileCacheHash = fileCacheHash;
-			_babelTransformer = new Lazy<IBabel>(() => 
-				new Babel(this, _cache, _fileSystem, _fileCacheHash, _config)
-			);
 			_engineFromPool = new Lazy<IJsEngine>(() => _engineFactory.GetEngine());
 		}
 
@@ -134,14 +123,6 @@ namespace React
 		}
 
 		/// <summary>
-		/// Gets the Babel transformer for this environment.
-		/// </summary>
-		public virtual IBabel Babel
-		{
-			get { return _babelTransformer.Value; }
-		}
-
-		/// <summary>
 		/// Gets the version of the JavaScript engine in use by ReactJS.NET
 		/// </summary>
 		public virtual string EngineVersion
@@ -155,37 +136,6 @@ namespace React
 		public virtual string Version
 		{
 			get { return _version.Value; }
-		}
-
-		/// <summary>
-		/// Ensures any user-provided scripts have been loaded. This only loads JSX files; files
-		/// that need no transformation are loaded in JavaScriptEngineFactory.
-		/// </summary>
-		protected virtual void EnsureUserScriptsLoaded()
-		{
-			// Scripts already loaded into this environment, don't load them again
-			if (Engine.HasVariable(USER_SCRIPTS_LOADED_KEY) || _config == null)
-			{
-				return;
-			}
-
-			foreach (var file in _config.Scripts)
-			{
-				var contents = Babel.TransformFile(file);
-				try
-				{
-					Execute(contents);
-				}
-				catch (JsRuntimeException ex)
-				{
-					throw new ReactScriptLoadException(string.Format(
-						"Error while loading \"{0}\": {1}",
-						file,
-						ex.Message
-					));
-				}
-			}
-			Engine.SetVariableValue(USER_SCRIPTS_LOADED_KEY, true);
 		}
 
 		/// <summary>
@@ -268,7 +218,6 @@ namespace React
 		/// <returns>The component</returns>
 		public virtual IReactComponent CreateComponent<T>(string componentName, T props, string containerId = null)
 		{
-			EnsureUserScriptsLoaded();
 			if (string.IsNullOrEmpty(containerId))
 			{
 				_maxContainerId++;
@@ -303,67 +252,6 @@ namespace React
 			}
 
 			return fullScript.ToString();
-		}
-
-		/// <summary>
-		/// Attempts to execute the provided JavaScript code using a non-pooled JavaScript engine (ie.
-		/// creates a new JS engine per-thread). This is because Babel uses a LOT of memory, so we 
-		/// should completely dispose any engines that have loaded Babel in order to conserve memory.
-		/// 
-		/// If an exception is thrown, retries the execution using a new thread (and hence a new engine)
-		/// with a larger maximum stack size.
-		/// This is required because JSXTransformer uses a huge stack which ends up being larger 
-		/// than what ASP.NET allows by default (256 KB).
-		/// </summary>
-		/// <typeparam name="T">Type to return from JavaScript call</typeparam>
-		/// <param name="function">JavaScript function to execute</param>
-		/// <param name="args">Arguments to pass to function</param>
-		/// <returns>Result returned from JavaScript code</returns>
-		public virtual T ExecuteWithBabel<T>(string function, params object[] args)
-		{
-			var engine = _engineFactory.GetEngineForCurrentThread();
-			EnsureBabelLoaded(engine);
-
-			try
-			{
-				return engine.CallFunctionReturningJson<T>(function, args);
-			}
-			catch (Exception)
-			{
-				// Assume the exception MAY be an "out of stack space" error. Try running the code 
-				// in a different thread with larger stack. If the same exception occurs, we know
-				// it wasn't a stack space issue.
-				T result = default(T);
-				Exception innerEx = null;
-				var thread = new Thread(() =>
-				{
-					// New engine will be created here (as this is a new thread)
-					var threadEngine = _engineFactory.GetEngineForCurrentThread();
-					EnsureBabelLoaded(threadEngine);
-					try
-					{
-						result = threadEngine.CallFunctionReturningJson<T>(function, args);
-					}
-					catch (Exception threadEx)
-					{
-						// Unhandled exceptions in threads kill the whole process.
-						// Pass the exception back to the parent thread to rethrow.
-						innerEx = threadEx;
-					}
-					finally
-					{
-						_engineFactory.DisposeEngineForCurrentThread();
-					}
-				}, LARGE_STACK_SIZE);
-				thread.Start();
-				thread.Join();
-				// Rethrow any exceptions that occured in the thread
-				if (innerEx != null)
-				{
-					throw innerEx;
-				}
-				return result;
-			}
 		}
 
 		/// <summary>
@@ -421,24 +309,6 @@ namespace React
 		public virtual IReactSiteConfiguration Configuration
 		{
 			get { return _config; }
-		}
-
-		/// <summary>
-		/// Ensures that Babel has been loaded into the JavaScript engine.
-		/// </summary>
-		private void EnsureBabelLoaded(IJsEngine engine)
-		{
-			// If Babel is disabled in the config, don't even try loading it
-			if (!_config.LoadBabel)
-			{
-				throw new BabelNotLoadedException();
-			}
-
-			var babelLoaded = engine.Evaluate<bool>("typeof ReactNET_transform !== 'undefined'");
-			if (!babelLoaded)
-			{
-				// engine.ExecuteResource("React.Resources.babel.generated.min.js", typeof(ReactEnvironment).Assembly);
-			}
 		}
 	}
 }

@@ -33,11 +33,8 @@ namespace React
 		/// </summary>
 		public ReactSiteConfiguration()
 		{
-			BabelConfig = new BabelConfig();
 			ReuseJavaScriptEngines = true;
 			AllowMsieEngine = true;
-			LoadBabel = true;
-			LoadReact = true;
 			JsonSerializerSettings = new JsonSerializerSettings
 			{
 				StringEscapeHandling = StringEscapeHandling.EscapeHtml
@@ -45,32 +42,10 @@ namespace React
 		}
 
 		/// <summary>
-		/// All the scripts that have been added to this configuration and require JSX 
-		/// transformation to be run.
-		/// </summary>
-		private readonly IList<string> _scriptFiles = new List<string>();
-		/// <summary>
 		/// All the scripts that have been added to this configuration and do not require JSX
 		/// transformation to be run.
 		/// </summary>
 		private readonly IList<string> _scriptFilesWithoutTransform = new List<string>();
-
-		/// <summary>
-		/// Adds a script to the list of scripts that are executed. This should be called for all
-		/// React components and their dependencies. If the script does not have any JSX in it
-		/// (for example, it's built using Webpack or Gulp), use 
-		/// <see cref="AddScriptWithoutTransform"/> instead.
-		/// </summary>
-		/// <param name="filename">
-		/// Name of the file to execute. Should be a server relative path starting with ~ (eg. 
-		/// <c>~/Scripts/Awesome.js</c>)
-		/// </param>
-		/// <returns>This configuration, for chaining</returns>
-		public IReactSiteConfiguration AddScript(string filename)
-		{
-			_scriptFiles.Add(filename);
-			return this;
-		}
 
 		/// <summary>
 		/// Adds a script to the list of scripts that are executed. This is the same as
@@ -106,17 +81,6 @@ namespace React
 			// dependency if it's absolutely necessary.
 			var fileSystem = AssemblyRegistration.Container.Resolve<IFileSystem>();
 			return fileSystem.Glob(glob);
-		}
-
-		/// <summary>
-		/// Gets a list of all the scripts that have been added to this configuration and require JSX
-		/// transformation to be run.
-		/// </summary>
-		public IEnumerable<string> Scripts
-		{
-			// TODO: It's a bit strange to do the globbing here, ideally this class should just be a simple
-			// bag of settings with no logic.
-			get { return _scriptFiles.SelectMany(Glob); }
 		}
 
 		/// <summary>
@@ -201,56 +165,6 @@ namespace React
 		public IReactSiteConfiguration SetAllowMsieEngine(bool allowMsieEngine)
 		{
 			AllowMsieEngine = allowMsieEngine;
-			return this;
-		}
-
-		/// <summary>
-		/// Gets or sets whether the built-in version of React is loaded. If <c>false</c>, you must
-		/// provide your own version of React.
-		/// </summary>
-		public bool LoadReact { get; set; }
-
-		/// <summary>
-		/// Sets whether the built-in version of React is loaded. If <c>false</c>, you must 
-		/// provide your own version of React.
-		/// </summary>
-		/// <returns>The configuration, for chaining</returns>
-		public IReactSiteConfiguration SetLoadReact(bool loadReact)
-		{
-			LoadReact = loadReact;
-			return this;
-		}
-
-		/// <summary>
-		/// Gets or sets whether Babel is loading. Disabling the loading of Babel can improve startup
-		/// performance, but all your JSX files must be transformed beforehand (eg. through Babel,
-		/// Webpack or Browserify).
-		/// </summary>
-		public bool LoadBabel { get; set; }
-
-		/// <summary>
-		/// Sets whether Babel is loading. Disabling the loading of Babel can improve startup
-		/// performance, but all your JSX files must be transformed beforehand (eg. through Babel,
-		/// Webpack or Browserify).
-		/// </summary>
-		public IReactSiteConfiguration SetLoadBabel(bool loadBabel)
-		{
-			LoadBabel = loadBabel;
-			return this;
-		}
-
-		/// <summary>
-		/// Gets or sets the Babel configuration to use.
-		/// </summary>
-		public BabelConfig BabelConfig { get; set; }
-
-		/// <summary>
-		/// Sets the Babel configuration to use.
-		/// </summary>
-		/// <returns>The configuration, for chaining</returns>
-		public IReactSiteConfiguration SetBabelConfig(BabelConfig value)
-		{
-			BabelConfig = value;
 			return this;
 		}
 	}
