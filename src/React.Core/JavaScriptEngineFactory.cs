@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using JavaScriptEngineSwitcher.Core;
+using JavaScriptEngineSwitcher.Msie;
 using JavaScriptEngineSwitcher.V8;
 using JSPool;
 using React.Exceptions;
@@ -57,7 +58,7 @@ namespace React
 		{
 			_config = config;
 			_fileSystem = fileSystem;
-			_factory = GetFactory(availableFactories);
+			_factory = GetFactory(availableFactories, config.AllowMsieEngine);
 			if (_config.ReuseJavaScriptEngines)
 			{
 				_pool = CreatePool();
@@ -221,7 +222,7 @@ namespace React
 		/// The first functioning JavaScript engine with the lowest priority will be used.
 		/// </summary>
 		/// <returns>Function to create JavaScript engine</returns>
-		private static Func<IJsEngine> GetFactory(IEnumerable<Registration> availableFactories)
+		private static Func<IJsEngine> GetFactory(IEnumerable<Registration> availableFactories, bool allowMsie)
 		{
 			var availableEngineFactories = availableFactories
 				.OrderBy(x => x.Priority)
@@ -232,7 +233,7 @@ namespace React
 				try
 				{
 					engine = engineFactory();
-					if (EngineIsUsable(engine))
+					if (EngineIsUsable(engine, allowMsie))
 					{
 						// Success! Use this one.
 						return engineFactory;
@@ -273,12 +274,14 @@ namespace React
 		/// Performs a sanity check to ensure the specified engine type is usable.
 		/// </summary>
 		/// <param name="engine">Engine to test</param>
+		/// <param name="allowMsie">Whether the MSIE engine can be used</param>
 		/// <returns></returns>
-		private static bool EngineIsUsable(IJsEngine engine)
+		private static bool EngineIsUsable(IJsEngine engine, bool allowMsie)
 		{
 			// Perform a sanity test to ensure this engine is usable
 			var isUsable = engine.Evaluate<int>("1 + 1") == 2;
-			return isUsable;
+			var isMsie = engine is MsieJsEngine;
+			return isUsable && (!isMsie || allowMsie);
 		}
 
 		/// <summary>

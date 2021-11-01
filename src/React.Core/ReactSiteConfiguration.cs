@@ -34,6 +34,7 @@ namespace React
 		public ReactSiteConfiguration()
 		{
 			ReuseJavaScriptEngines = true;
+			AllowMsieEngine = true;
 			JsonSerializerSettings = new JsonSerializerSettings
 			{
 				StringEscapeHandling = StringEscapeHandling.EscapeHtml
@@ -149,6 +150,21 @@ namespace React
 		public IReactSiteConfiguration SetMaxEngines(int? maxEngines)
 		{
 			MaxEngines = maxEngines;
+			return this;
+		}
+
+		/// <summary>
+		/// Gets or sets whether the MSIE engine should be used if V8 is unavailable.
+		/// </summary>
+		public bool AllowMsieEngine { get; set; }
+
+		/// <summary>
+		/// Sets whether the MSIE engine should be used if V8 is unavailable.
+		/// </summary>
+		/// <returns></returns>
+		public IReactSiteConfiguration SetAllowMsieEngine(bool allowMsieEngine)
+		{
+			AllowMsieEngine = allowMsieEngine;
 			return this;
 		}
 	}
